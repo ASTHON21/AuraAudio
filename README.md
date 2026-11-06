@@ -1,11 +1,39 @@
-<div align="center">
+# Aura Audio — Minimalist Audiophile Sanctuary
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+An introspective, ultra-refined Android audio player crafted with Jetpack Compose, Material Design 3, and the **Aura Minimalist Audio** design system.
 
-  <h1>Built with AI Studio</h2>
+## Direct APK Download from GitHub
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+This repository is pre-configured with **GitHub Actions** (`.github/workflows/build-apk.yml`) to automatically build a signed, installable Android APK on every push to `main` or `master`.
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+### How to Download the APK
+1. **Via GitHub Releases (Fastest — Direct Link)**:
+   - Open your GitHub repository page.
+   - Click **Releases** in the right-hand sidebar.
+   - Under the latest release, click **`Aura-Audio.apk`** to download and install it directly onto your Android device.
+2. **Via GitHub Actions Artifacts**:
+   - Open the **Actions** tab in your GitHub repository.
+   - Select the latest **Build & Publish Android APK** workflow run.
+   - Scroll down to **Artifacts** and click **`Aura-Audio-APK`**.
 
-</div>
+> **Tip**: You can also download the pre-built APK directly inside Google AI Studio anytime via the **Settings / Export** menu without waiting for a GitHub build.
+
+---
+
+## Features & Architecture
+
+- **Sanctuary Player View**:
+  - `120px` ambient optical refraction backdrop (`#0D0E12` base void with Dawn Azure `#4F75FF` and Warm Apricot `#FFA877` accents).
+  - `rounded-xl` (`24dp`) glassmorphic artwork enclosure with real-time acoustic waveform visualization.
+  - Hairline `3dp` seekbar and scrubber with buffered segment indicator, expanding thumb (`8dp` to `14dp`), Dawn Azure glow, and tabular numeral (`tnum`) timestamps.
+  - `64dp` circular `#F4F5F7` Play/Pause anchor and `48dp` secondary transport controls.
+- **Audio Index & Search**:
+  - Recessed pill search bar with focus-reactive Dawn Azure border.
+  - Category filters (`ALL TRACKS`, `FAVORITES`, `LOSSLESS`, `STREAMS`) and zero-divider track rows.
+- **Signal & Acoustic Lab**:
+  - Real hardware audio telemetry read from Android `AudioManager` (active output device, native DAC sample rate, frames per buffer).
+  - Playback clock speed calibration (`0.50x` – `2.00x`) and digital output gain control.
+- **Audio Sources**:
+  - Import local audio files (`FLAC`, `WAV`, `ALAC`, `AAC`, `MP3`, `OGG`) with automatic `MediaMetadataRetriever` metadata and embedded artwork extraction.
+  - Connect direct `http://` or `https://` audio stream URLs.
+  - Synthesize custom uncompressed 16-bit / 44.1kHz stereo PCM `.wav` reference tones on-device.

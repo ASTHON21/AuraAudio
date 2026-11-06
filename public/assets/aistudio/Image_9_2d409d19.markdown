@@ -1,0 +1,205 @@
+---
+name: Aura Minimalist Audio
+colors:
+  surface: '#121317'
+  surface-dim: '#121317'
+  surface-bright: '#38393d'
+  surface-container-lowest: '#0d0e12'
+  surface-container-low: '#1a1b20'
+  surface-container: '#1f1f24'
+  surface-container-high: '#292a2e'
+  surface-container-highest: '#343439'
+  on-surface: '#e3e2e7'
+  on-surface-variant: '#c4c5d7'
+  inverse-surface: '#e3e2e7'
+  inverse-on-surface: '#2f3035'
+  outline: '#8e90a0'
+  outline-variant: '#434655'
+  surface-tint: '#b7c4ff'
+  primary: '#b7c4ff'
+  on-primary: '#002583'
+  primary-container: '#6a89ff'
+  on-primary-container: '#002074'
+  inverse-primary: '#2350db'
+  secondary: '#c5c6c8'
+  on-secondary: '#2e3132'
+  secondary-container: '#444749'
+  on-secondary-container: '#b4b5b7'
+  tertiary: '#ffb68e'
+  on-tertiary: '#542200'
+  tertiary-container: '#cc7d50'
+  on-tertiary-container: '#491d00'
+  error: '#ffb4ab'
+  on-error: '#690005'
+  error-container: '#93000a'
+  on-error-container: '#ffdad6'
+  primary-fixed: '#dde1ff'
+  primary-fixed-dim: '#b7c4ff'
+  on-primary-fixed: '#001453'
+  on-primary-fixed-variant: '#0038b7'
+  secondary-fixed: '#e1e2e4'
+  secondary-fixed-dim: '#c5c6c8'
+  on-secondary-fixed: '#191c1e'
+  on-secondary-fixed-variant: '#444749'
+  tertiary-fixed: '#ffdbca'
+  tertiary-fixed-dim: '#ffb68e'
+  on-tertiary-fixed: '#331200'
+  on-tertiary-fixed-variant: '#72360e'
+  background: '#121317'
+  on-background: '#e3e2e7'
+  surface-variant: '#343439'
+typography:
+  headline-xl:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 36px
+    fontWeight: '600'
+    lineHeight: 44px
+    letterSpacing: -0.03em
+  headline-xl-mobile:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 28px
+    fontWeight: '600'
+    lineHeight: 36px
+    letterSpacing: -0.025em
+  headline-lg:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 24px
+    fontWeight: '600'
+    lineHeight: 32px
+    letterSpacing: -0.02em
+  headline-sm:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 18px
+    fontWeight: '500'
+    lineHeight: 26px
+    letterSpacing: -0.015em
+  body-lg:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 16px
+    fontWeight: '400'
+    lineHeight: 24px
+    letterSpacing: -0.01em
+  body-md:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 14px
+    fontWeight: '400'
+    lineHeight: 22px
+    letterSpacing: 0em
+  body-sm:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 13px
+    fontWeight: '400'
+    lineHeight: 18px
+    letterSpacing: 0.005em
+  label-md:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 12px
+    fontWeight: '600'
+    lineHeight: 16px
+    letterSpacing: 0.04em
+  label-sm:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 10px
+    fontWeight: '500'
+    lineHeight: 14px
+    letterSpacing: 0.08em
+rounded:
+  sm: 0.25rem
+  DEFAULT: 0.5rem
+  md: 0.75rem
+  lg: 1rem
+  xl: 1.5rem
+  full: 9999px
+spacing:
+  gutter: 1rem
+  margin: 1.25rem
+  margin-tablet: 2rem
+  space-xs: 0.25rem
+  space-sm: 0.5rem
+  space-md: 0.875rem
+  space-lg: 1.5rem
+  space-xl: 2.5rem
+---
+
+## Brand & Style
+
+This design system embodies an introspective, serene, and ultra-refined listening sanctuary. Grounded in reductionist minimalism and elevated through nuanced glassmorphism, it treats sound as an intimate architectural space rather than a loud dashboard. 
+
+The aesthetic marries pure precision with atmospheric tactility: deep abyssal dark tones, delicate spectral light highlights, hairline borders, and generous spatial voids. The experience is designed for discerning audiophiles, creatives, and design-conscious listeners who seek respite from the over-saturated, hyperactive interfaces of mainstream media platforms. Visual clutter is methodically removed; metadata, interactive controls, and acoustic wave feedback surface organically only when contextually relevant.
+
+## Colors
+
+The palette revolves around deep tonal immersion punctuated by focused, luminous optical events:
+- **Base Neutral (`#0D0E12`)**: A void-depth graphite-black canvas that absorbs visual noise and lets album artwork and optical glows emerge effortlessly.
+- **Surface Elevation Levels**: Derived directly from the base neutral via semi-transparent layering (`rgba(255, 255, 255, 0.03)` to `rgba(255, 255, 255, 0.08)`), maintaining spectral depth rather than flat grey stepping.
+- **Secondary (`#F4F5F7`)**: Aurora Cold Silver, acting as the primary high-legibility typographic anchor, dynamic icon color, and structural highlight.
+- **Primary (`#4F75FF`)**: Dawn Azure, reserved exclusively for active playback states, live audio scrubbers, and critical primary interactions.
+- **Tertiary (`#FFA877`)**: Warm Apricot, used sparingly as an organic counterpoint for warm accents, lossless/high-res audio badges, and intimate playback cues.
+- **Borders & Separators**: Hairline alpha boundaries strictly set at `rgba(244, 245, 247, 0.08)` to define spatial edges without creating harsh silhouettes.
+
+## Typography
+
+The typography leverages **Plus Jakarta Sans** across all roles to achieve a balance between geometric clarity and humane curvature. The geometric construction gives tracks, metadata, and timestamps a technical purity, while its softened terminals prevent cold mechanical sterility.
+
+- Track titles use tight optical tracking (`-0.025em` to `-0.03em`) to anchor attention cleanly against artwork.
+- Timestamps and scrub metrics use `body-sm` with tabular numerical figures (`font-variant-numeric: tabular-nums`) to ensure zero jitter during real-time playback.
+- Sub-labels, audio bitrates (e.g., "96kHz / 24-bit FLAC"), and category tags utilize `label-sm` rendered in uppercase with deliberate letter-spacing (`0.08em`) for quiet, authoritative micro-hierarchy.
+
+## Layout & Spacing
+
+This design system uses a strict 4px base vertical rhythm embedded into a fluid-column mobile framework. 
+
+- **Canvas Safe Area & Margins**: Margins strictly isolate content from edge-bleed, employing `1.25rem` (20px) on mobile viewports and scaling to `2rem` (32px) on tablet breakpoints.
+- **Vertical Airflow**: Player views favor vertical breathing space over dense data packing. The distance between the album art canvas and track metadata relies on `space-xl`, allowing the visual art to resonate independently before typography introduces intellectual context.
+- **Component Padding**: Micro-interactive controls maintain generous touch targets (minimum 44x44px bounding area) while maintaining compact visual envelopes utilizing `space-xs` and `space-sm` for internal paddings.
+
+## Elevation & Depth
+
+Visual hierarchy is engineered through stacked optical refraction and controlled ambient translucency, avoiding heavy dropped shadows:
+
+1. **Base Layer (Level 0)**: Unadorned `#0D0E12`, augmented in playback views by an organic, oversized 120px Gaussian blur extracted from the active album cover palette at 15% opacity.
+2. **Glassmorphic Panes (Level 1 - Floating Cards & Drawers)**: 
+   - Surface: `rgba(244, 245, 247, 0.04)`
+   - Blur: `backdrop-filter: blur(24px) saturate(180%)`
+   - Border: Hairline inner stroke `1px solid rgba(244, 245, 247, 0.08)`
+3. **Modal Sheets & Tooltip Overlays (Level 2)**:
+   - Surface: `rgba(13, 14, 18, 0.72)`
+   - Blur: `backdrop-filter: blur(36px)`
+   - Rim Light: Top border highlight `1px solid rgba(244, 245, 247, 0.15)`
+   - Shadow: `0 16px 40px -12px rgba(0, 0, 0, 0.65)`
+4. **Active Playback Elements (Glow Elevation)**: Playhead indicators and active state nodes cast a faint monochromatic aura using `box-shadow: 0 0 16px rgba(79, 117, 255, 0.45)`.
+
+## Shapes
+
+The system relies on high-curvature silhouettes that feel warm, ergonomic, and touch-sculpted:
+- Small controls, micro chips, and playback toggles utilize `0.5rem` (8px).
+- Artwork tiles, feature guide floating cards, and drawer modals take on `rounded-xl` (`1.5rem` / 24px) to present fluid, friendly contours against dark fields.
+- Micro badges and primary circular action toggles (play/pause, shuffle, airplay) implement full pill and circle radii (`9999px`).
+
+## Components
+
+### Buttons & Transport Controls
+- **Primary Playback Anchor (Play/Pause)**: 64x64px circular button with `#F4F5F7` background, casting an internal micro-bevel. Dynamic icon glyph in `#0D0E12`.
+- **Secondary Transports (Skip, Seek, Shuffle, Repeat)**: Minimalist 44x44px touch frames with borderless transparent surfaces. Glyphs sit at 50% opacity silver (`#F4F5F7`), shifting to 100% with a Dawn Azure glow point when active.
+
+### Seekbar & Scrubber
+- Hairline horizontal track of 3px height with `rgba(244, 245, 247, 0.12)` fill.
+- Buffered segment illuminated via `rgba(244, 245, 247, 0.25)`.
+- Active progress rendered in `#4F75FF` leading to an 8px polished white thumb that expands to 14px on active drag gesture.
+
+### Chips & Badges
+- Small metadata tags (e.g., "LOSSLESS", "DOLBY ATMOS", "HI-RES") use `label-sm` with 4px vertical and 8px horizontal padding.
+- Neutral states have `rgba(244, 245, 247, 0.05)` fill with `1px solid rgba(244, 245, 247, 0.1)`. Highlight badges use warm apricot micro-gradients (`linear-gradient(135deg, rgba(255, 168, 119, 0.15), rgba(79, 117, 255, 0.05))`).
+
+### Floating Tutorial / Feature Guide Cards
+- Compact floating cards anchored above the tracklist or playback view with `rounded-xl` contours.
+- Backdrop frosted with 32px Gaussian blur and bounded by hairline perimeter lighting.
+- Left-aligned micro-icon in a tinted dawn-blue enclosure, accompanied by succinct two-line value text and a subtle pill-shaped dismiss trigger.
+
+### Input Fields & Search
+- Recessed pill fields with `rgba(244, 245, 247, 0.05)` background and no static outline.
+- Active typing invokes a smooth transition to `1px solid rgba(79, 117, 255, 0.4)` without hard drop shadows.
+
+### Track Lists & Row Items
+- Zero divider lines. Visual separation is maintained purely through vertical rhythm and micro-hover glass flashes (`rgba(255, 255, 255, 0.02)`).
+- Leading element: 44x44px rounded album cover or track indexing number. Trailing element: Contextual three-dot overflow button at 40% resting opacity.

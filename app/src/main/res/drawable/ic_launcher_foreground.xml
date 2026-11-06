@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer subtle aura ring -->
+    <path
+        android:fillColor="#264F75FF"
+        android:pathData="M54,24A30,30 0 1,1 54,84A30,30 0 1,1 54,24Z" />
+    <!-- Acoustic waveform bars inside safe zone -->
+    <path
+        android:fillColor="#FF4F75FF"
+        android:pathData="M35,46C36.66,46 38,47.34 38,49V59C38,60.66 36.66,62 35,62C33.34,62 32,60.66 32,59V49C32,47.34 33.34,46 35,46Z" />
+    <path
+        android:fillColor="#FFF4F5F7"
+        android:pathData="M44.5,38C46.16,38 47.5,39.34 47.5,41V67C47.5,68.66 46.16,70 44.5,70C42.84,70 41.5,68.66 41.5,67V41C41.5,39.34 42.84,38 44.5,38Z" />
+    <path
+        android:fillColor="#FFFFA877"
+        android:pathData="M54,31C55.66,31 57,32.34 57,34V74C57,75.66 55.66,77 54,77C52.34,77 51,75.66 51,74V34C51,32.34 52.34,31 54,31Z" />
+    <path
+        android:fillColor="#FFF4F5F7"
+        android:pathData="M63.5,41C65.16,41 66.5,42.34 66.5,44V64C66.5,65.66 65.16,67 63.5,67C61.84,67 60.5,65.66 60.5,64V44C60.5,42.34 61.84,41 63.5,41Z" />
+    <path
+        android:fillColor="#FF4F75FF"
+        android:pathData="M73,47C74.66,47 76,48.34 76,50V58C76,59.66 74.66,61 73,61C71.34,61 70,59.66 70,58V50C70,48.34 71.34,47 73,47Z" />
+</vector>
