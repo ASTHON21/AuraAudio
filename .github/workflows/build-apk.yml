@@ -29,19 +29,22 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Set up Android SDK (API 36.1)
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK Platform 36.1 & Build Tools
+      - name: Accept Android SDK Licenses & Install Platform 36.1
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platform-tools" "platforms;android-36" "platforms;android-36.1" "build-tools;36.0.0"
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | sort -V | tail -n 1)
+          echo "Using sdkmanager at: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" --install "platform-tools" "platforms;android-36.1" "build-tools;36.0.0" || true
 
       - name: Restore debug.keystore from debug.keystore.base64
         run: |
           if [ -f "debug.keystore.base64" ]; then
-            base64 -d debug.keystore.base64 > debug.keystore
-          elif [ ! -f "debug.keystore" ]; then
+            base64 -di debug.keystore.base64 > debug.keystore || rm -f debug.keystore
+          fi
+          if [ ! -s "debug.keystore" ]; then
+            rm -f debug.keystore
             keytool -genkeypair -v \
               -keystore debug.keystore \
               -storepass android \
@@ -55,8 +58,12 @@ jobs:
 
       - name: Ensure .env file exists for Secrets Gradle Plugin
         run: |
-          if [ ! -f ".env" ] && [ -f ".env.example" ]; then
-            cp .env.example .env
+          if [ ! -f ".env" ]; then
+            if [ -f ".env.example" ]; then
+              cp .env.example .env
+            else
+              touch .env
+            fi
           fi
 
       - name: Set up Gradle 9.3.1
@@ -65,11 +72,14 @@ jobs:
           gradle-version: '9.3.1'
 
       - name: Build Debug APK
-        run: gradle :app:assembleDebug --no-daemon
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
 
       - name: Prepare Named APK for Download
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk Aura-Audio.apk
+          APK_PATH=$(find app/build/outputs/apk -name "*.apk" -type f | head -n 1)
+          echo "Found built APK at: $APK_PATH"
+          cp "$APK_PATH" Aura-Audio.apk
+          ls -lh Aura-Audio.apk
 
       - name: Upload APK as Workflow Artifact
         uses: actions/upload-artifact@v4
@@ -80,13 +90,14 @@ jobs:
 
       - name: Publish APK to GitHub Releases
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: "Aura Audio APK (Build #${{ github.run_number }})"
           body: |
             ### Aura Minimalist Audio — Direct APK Download
-            Download **`Aura-Audio.apk`** below to install directly on your Android device.
+            Tap **`Aura-Audio.apk`** under **Assets** below to download and install directly on your Android device.
           files: Aura-Audio.apk
           prerelease: false
           make_latest: true
