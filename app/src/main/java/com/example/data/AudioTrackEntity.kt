@@ -22,6 +22,5 @@ data class AudioTrackEntity(
   val technicalSpecLabel: String,
   val dominantColorHex: Long = 0xFF4F75FF,
   val isFavorite: Boolean = false,
-  val isStream: Boolean = false,
   val addedAt: Long = System.currentTimeMillis(),
 )

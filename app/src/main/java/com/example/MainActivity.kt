@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -68,7 +67,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.data.AudioTrackEntity
 import com.example.ui.AuraPlayerViewModel
 import com.example.ui.AuraScreen
-import com.example.ui.components.AddStreamModalSheet
 import com.example.ui.components.AuraAmbientBackdrop
 import com.example.ui.components.AuraMetadataBadge
 import com.example.ui.components.EditMetadataModalSheet
@@ -121,13 +119,11 @@ fun AuraMinimalistAudioApp(
     }
   }
 
-  // Mandatory BackHandler for secondary screens when using custom screen state switching
   BackHandler(enabled = uiState.currentScreen != AuraScreen.SANCTUARY) {
     viewModel.navigateTo(AuraScreen.SANCTUARY)
   }
 
   Box(modifier = Modifier.fillMaxSize()) {
-    // Level 0 Base Layer: #0D0E12 with 120px Gaussian blur ambient glow from active artwork palette
     AuraAmbientBackdrop(
       dominantColorHex = currentTrack?.dominantColorHex ?: 0xFF4F75FFL,
       isPlaying = uiState.isPlaying
@@ -160,7 +156,6 @@ fun AuraMinimalistAudioApp(
             .padding(horizontal = 20.dp, vertical = 10.dp),
           verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-          // Floating Mini-Player on secondary views when a track is loaded
           AnimatedVisibility(
             visible = uiState.currentScreen != AuraScreen.SANCTUARY && currentTrack != null,
             enter = fadeIn(),
@@ -203,7 +198,6 @@ fun AuraMinimalistAudioApp(
                 onImportLocalAudio = {
                   audioPickerLauncher.launch(arrayOf("audio/*"))
                 },
-                onOpenStreamSheet = { viewModel.setShowAddStreamSheet(true) },
                 onOpenSynthesizeSheet = { viewModel.setShowSynthesizeSheet(true) },
                 onOpenTelemetrySheet = { viewModel.setShowSignalTelemetrySheet(true) },
                 onDismissFeatureGuide = { viewModel.dismissFeatureGuide() },
@@ -234,7 +228,6 @@ fun AuraMinimalistAudioApp(
                 onImportLocalAudio = {
                   audioPickerLauncher.launch(arrayOf("audio/*"))
                 },
-                onOpenStreamSheet = { viewModel.setShowAddStreamSheet(true) },
                 onOpenSynthesizeSheet = { viewModel.setShowSynthesizeSheet(true) }
               )
             }
@@ -256,16 +249,6 @@ fun AuraMinimalistAudioApp(
           }
         }
       }
-    }
-
-    // Level 2 Modal Sheets & Overlays
-    if (uiState.showAddStreamSheet) {
-      AddStreamModalSheet(
-        onDismiss = { viewModel.setShowAddStreamSheet(false) },
-        onConnectStream = { url, title, artist, album, coverUrl ->
-          viewModel.addStreamUrl(url, title, artist, album, coverUrl)
-        }
-      )
     }
 
     if (uiState.showSynthesizeSheet) {
@@ -306,8 +289,8 @@ fun AuraMinimalistAudioApp(
       EditMetadataModalSheet(
         track = editTrack,
         onDismiss = { viewModel.openTrackEdit(null) },
-        onSave = { title, artist, album, coverUri ->
-          viewModel.saveEditedMetadata(editTrack, title, artist, album, coverUri)
+        onSave = { title, artist, album ->
+          viewModel.saveEditedMetadata(editTrack, title, artist, album)
         }
       )
     }

@@ -3,15 +3,14 @@
     <string name="nav_sanctuary">Sanctuary</string>
     <string name="nav_library">Index</string>
     <string name="nav_signal">Signal</string>
-    <string name="search_placeholder">Search tracks, artists, or formats…</string>
-    <string name="feature_guide_title">Pure Acoustic Architecture</string>
-    <string name="feature_guide_subtitle">Import local lossless audio files or attach a direct stream URL to engage the signal path.</string>
+    <string name="search_placeholder">Search local tracks, artists, or formats…</string>
+    <string name="feature_guide_title">Pure Offline Acoustic Architecture</string>
+    <string name="feature_guide_subtitle">Import local lossless audio files or synthesize a reference WAV tone with zero network access.</string>
     <string name="dismiss">Dismiss</string>
     <string name="import_local_audio">Import Local Audio</string>
-    <string name="connect_stream_url">Connect Stream URL</string>
     <string name="synthesize_wav">Synthesize Reference Tone</string>
     <string name="awaiting_audio_signal">Awaiting Audio Signal</string>
-    <string name="awaiting_audio_subtitle">Select local audio files or attach a stream to begin playback</string>
+    <string name="awaiting_audio_subtitle">Select local audio files from your device or synthesize a reference WAV</string>
     <string name="play_pause">Play or Pause</string>
     <string name="skip_previous">Previous Track</string>
     <string name="skip_next">Next Track</string>
@@ -20,5 +19,5 @@
     <string name="track_options">Track Options</string>
     <string name="signal_telemetry">Signal Path Telemetry</string>
     <string name="empty_library_title">Your Listening Sanctuary is Quiet</string>
-    <string name="empty_library_body">Import local FLAC, WAV, AAC, or MP3 files from your device, connect a stream URL, or synthesize a custom acoustic reference tone.</string>
+    <string name="empty_library_body">Import local FLAC, WAV, ALAC, AAC, or MP3 files from your device, or synthesize a custom 16-bit / 44.1kHz acoustic reference tone.</string>
 </resources>

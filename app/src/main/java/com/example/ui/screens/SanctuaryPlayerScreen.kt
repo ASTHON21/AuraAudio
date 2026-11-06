@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,12 +39,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.R
 import com.example.data.AudioTrackEntity
 import com.example.ui.PlayerUiState
@@ -54,6 +51,7 @@ import com.example.ui.components.AuraFloatingFeatureGuideCard
 import com.example.ui.components.AuraHairlineScrubber
 import com.example.ui.components.AuraMetadataBadge
 import com.example.ui.components.AuraTransportControls
+import com.example.ui.components.LocalCoverArtwork
 import com.example.ui.theme.AuraColors
 import com.example.ui.theme.AuraTypeTokens
 
@@ -64,7 +62,6 @@ fun SanctuaryPlayerScreen(
   currentTrack: AudioTrackEntity?,
   trackCount: Int,
   onImportLocalAudio: () -> Unit,
-  onOpenStreamSheet: () -> Unit,
   onOpenSynthesizeSheet: () -> Unit,
   onOpenTelemetrySheet: () -> Unit,
   onDismissFeatureGuide: () -> Unit,
@@ -96,7 +93,6 @@ fun SanctuaryPlayerScreen(
         .padding(horizontal = horizontalMargin, vertical = 12.dp),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      // Top Sanctuary Header Bar
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -170,7 +166,6 @@ fun SanctuaryPlayerScreen(
 
       Spacer(modifier = Modifier.height(16.dp))
 
-      // Floating Tutorial / Feature Guide Card (Level 1 Glassmorphic Pane)
       if (uiState.showFeatureGuideCard) {
         AuraFloatingFeatureGuideCard(
           title = stringResource(R.string.feature_guide_title),
@@ -180,7 +175,6 @@ fun SanctuaryPlayerScreen(
         Spacer(modifier = Modifier.height(20.dp))
       }
 
-      // Album Art & Acoustic Canvas (rounded-xl = 24.dp)
       val artworkShape = RoundedCornerShape(24.dp)
       Box(
         modifier = Modifier
@@ -201,13 +195,11 @@ fun SanctuaryPlayerScreen(
         contentAlignment = Alignment.Center
       ) {
         if (currentTrack != null && !currentTrack.coverUriString.isNullOrBlank()) {
-          AsyncImage(
-            model = currentTrack.coverUriString,
+          LocalCoverArtwork(
+            coverUriString = currentTrack.coverUriString,
             contentDescription = currentTrack.title,
-            contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
           )
-          // Subtle bottom gradient overlay for acoustic wave indicator
           Box(
             modifier = Modifier
               .fillMaxWidth()
@@ -230,7 +222,6 @@ fun SanctuaryPlayerScreen(
             )
           }
         } else if (currentTrack != null) {
-          // Active track without cover art: minimalist architectural soundstage visualization
           Column(
             modifier = Modifier
               .fillMaxSize()
@@ -269,7 +260,6 @@ fun SanctuaryPlayerScreen(
             )
           }
         } else {
-          // Empty Sanctuary State: Tactile glassmorphic source triggers inside the artwork canvas
           Column(
             modifier = Modifier
               .fillMaxSize()
@@ -288,13 +278,13 @@ fun SanctuaryPlayerScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             Text(
-              text = "ENGAGE AUDIO SOURCE",
+              text = "ENGAGE LOCAL AUDIO SOURCE",
               style = AuraTypeTokens.LabelSm,
               color = AuraColors.WarmApricot
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-              text = "Load audio from device storage, attach a stream URL, or synthesize a reference WAV.",
+              text = "Load audio files from device storage or synthesize a lossless 16-bit / 44.1kHz reference WAV.",
               style = AuraTypeTokens.BodySm,
               color = AuraColors.OnSurfaceVariant,
               modifier = Modifier.padding(horizontal = 8.dp)
@@ -304,7 +294,7 @@ fun SanctuaryPlayerScreen(
 
             Column(
               modifier = Modifier.fillMaxWidth(),
-              verticalArrangement = Arrangement.spacedBy(8.dp)
+              verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
               CanvasSourceActionPill(
                 icon = Icons.Filled.AudioFile,
@@ -312,13 +302,6 @@ fun SanctuaryPlayerScreen(
                 accentColor = AuraColors.DawnAzure,
                 onClick = onImportLocalAudio,
                 testTag = "canvas_import_local_button"
-              )
-              CanvasSourceActionPill(
-                icon = Icons.Filled.Radio,
-                label = stringResource(R.string.connect_stream_url),
-                accentColor = AuraColors.AuroraSilver,
-                onClick = onOpenStreamSheet,
-                testTag = "canvas_connect_stream_button"
               )
               CanvasSourceActionPill(
                 icon = Icons.Filled.Tune,
@@ -332,10 +315,8 @@ fun SanctuaryPlayerScreen(
         }
       }
 
-      // Vertical Airflow: space-xl (2.5rem = 40dp) between album art canvas and track metadata
       Spacer(modifier = Modifier.height(spaceXl))
 
-      // Track Metadata & Technical Badges
       Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -350,7 +331,7 @@ fun SanctuaryPlayerScreen(
             onClick = onOpenTelemetrySheet
           )
           AuraMetadataBadge(
-            text = currentTrack?.technicalSpecLabel ?: "PCM / FLAC / WAV / STREAM",
+            text = currentTrack?.technicalSpecLabel ?: "OFFLINE PCM / FLAC / WAV",
             isHighlight = false,
             onClick = onOpenTelemetrySheet
           )
@@ -434,7 +415,6 @@ fun SanctuaryPlayerScreen(
 
       Spacer(modifier = Modifier.height(24.dp))
 
-      // Hairline Seekbar & Scrubber with tabular numerals
       AuraHairlineScrubber(
         currentPositionMs = uiState.currentPositionMs,
         durationMs = uiState.durationMs,
@@ -444,7 +424,6 @@ fun SanctuaryPlayerScreen(
 
       Spacer(modifier = Modifier.height(20.dp))
 
-      // Primary 64x64dp & Secondary 48x48dp Transport Controls
       AuraTransportControls(
         isPlaying = uiState.isPlaying,
         isShuffleEnabled = uiState.isShuffleEnabled,

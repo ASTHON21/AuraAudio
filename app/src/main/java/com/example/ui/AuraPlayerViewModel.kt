@@ -41,7 +41,6 @@ enum class TrackFilter(val label: String) {
   ALL("ALL TRACKS"),
   FAVORITES("FAVORITES"),
   LOSSLESS("LOSSLESS"),
-  STREAMS("STREAMS"),
 }
 
 data class HardwareAudioTelemetry(
@@ -65,7 +64,6 @@ data class PlayerUiState(
   val searchQuery: String = "",
   val activeFilter: TrackFilter = TrackFilter.ALL,
   val showFeatureGuideCard: Boolean = true,
-  val showAddStreamSheet: Boolean = false,
   val showSynthesizeSheet: Boolean = false,
   val showSignalTelemetrySheet: Boolean = false,
   val selectedTrackForMenu: AudioTrackEntity? = null,
@@ -105,7 +103,6 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
           TrackFilter.ALL -> true
           TrackFilter.FAVORITES -> track.isFavorite
           TrackFilter.LOSSLESS -> track.isLossless
-          TrackFilter.STREAMS -> track.isStream
         }
         val matchesQuery = if (query.isEmpty()) {
           true
@@ -191,10 +188,6 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
     _uiState.update { it.copy(activeFilter = filter) }
   }
 
-  fun setShowAddStreamSheet(show: Boolean) {
-    _uiState.update { it.copy(showAddStreamSheet = show) }
-  }
-
   fun setShowSynthesizeSheet(show: Boolean) {
     _uiState.update { it.copy(showSynthesizeSheet = show) }
   }
@@ -236,7 +229,7 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
       if (firstImported != null) {
         _uiState.update {
           it.copy(
-            statusMessage = "Imported $count audio ${if (count == 1) "track" else "tracks"} into Sanctuary"
+            statusMessage = "Imported $count local audio ${if (count == 1) "track" else "tracks"} into Sanctuary"
           )
         }
         if (_uiState.value.currentTrackId == null) {
@@ -244,34 +237,9 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
         }
       } else {
         _uiState.update {
-          it.copy(statusMessage = "Unable to decode selected audio file")
+          it.copy(statusMessage = "Unable to decode selected local audio file")
         }
       }
-    }
-  }
-
-  fun addStreamUrl(
-    streamUrl: String,
-    title: String,
-    artist: String,
-    album: String,
-    coverUrl: String?,
-  ) {
-    viewModelScope.launch {
-      val added = repository.addStreamTrack(
-        streamUrl = streamUrl,
-        title = title,
-        artist = artist,
-        album = album,
-        coverUrl = coverUrl,
-      )
-      _uiState.update {
-        it.copy(
-          showAddStreamSheet = false,
-          statusMessage = "Connected stream: ${added.title}"
-        )
-      }
-      playTrack(added)
     }
   }
 
@@ -309,10 +277,9 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
     title: String,
     artist: String,
     album: String,
-    coverUri: String?,
   ) {
     viewModelScope.launch {
-      repository.updateTrackMetadata(track, title, artist, album, coverUri)
+      repository.updateTrackMetadata(track, title, artist, album)
       _uiState.update {
         it.copy(
           selectedTrackForEdit = null,
@@ -347,7 +314,7 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
         isBuffering = true,
         currentPositionMs = 0L,
         durationMs = track.durationMs,
-        bufferedFraction = if (track.isStream) 0.15f else 1.0f,
+        bufferedFraction = 1.0f,
       )
     }
 
@@ -362,17 +329,7 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
       )
 
       val uri = Uri.parse(track.uriString)
-      if (track.isStream || track.uriString.startsWith("http")) {
-        player.setDataSource(track.uriString)
-      } else {
-        player.setDataSource(getApplication(), uri)
-      }
-
-      player.setOnBufferingUpdateListener { _, percent ->
-        _uiState.update {
-          it.copy(bufferedFraction = (percent / 100f).coerceIn(0f, 1f))
-        }
-      }
+      player.setDataSource(getApplication(), uri)
 
       player.setOnPreparedListener { mp ->
         val resolvedDuration = mp.duration.toLong().coerceAtLeast(track.durationMs)
@@ -385,7 +342,7 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
             isPlaying = true,
             isBuffering = false,
             durationMs = if (resolvedDuration > 0) resolvedDuration else track.durationMs,
-            bufferedFraction = if (track.isStream) it.bufferedFraction.coerceAtLeast(0.35f) else 1f,
+            bufferedFraction = 1f,
           )
         }
         startProgressTicker()
@@ -400,7 +357,7 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
           it.copy(
             isPlaying = false,
             isBuffering = false,
-            statusMessage = "Signal interrupted: unable to play audio source"
+            statusMessage = "Signal interrupted: unable to play local audio source"
           )
         }
         true
@@ -412,7 +369,7 @@ class AuraPlayerViewModel(application: Application) : AndroidViewModel(applicati
         it.copy(
           isPlaying = false,
           isBuffering = false,
-          statusMessage = "Could not initialize audio source"
+          statusMessage = "Could not initialize local audio source"
         )
       }
     }

@@ -1,6 +1,6 @@
 {
   "name": "Aura Audio",
-  "description": "An introspective, ultra-refined audiophile listening sanctuary with glassmorphic controls, lossless metadata telemetry, and local and stream audio playback.",
+  "description": "An introspective, ultra-refined offline audiophile listening sanctuary with glassmorphic controls, lossless metadata telemetry, and local audio playback.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

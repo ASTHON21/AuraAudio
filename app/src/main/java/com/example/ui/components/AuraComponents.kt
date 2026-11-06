@@ -1,5 +1,7 @@
 package com.example.ui.components
 
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode as AnimRepeatMode
@@ -10,6 +12,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,13 +24,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -46,12 +47,13 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -62,24 +64,65 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.R
 import com.example.data.AudioTrackEntity
 import com.example.ui.RepeatMode
 import com.example.ui.theme.AuraColors
 import com.example.ui.theme.AuraTypeTokens
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.Locale
 import kotlin.math.PI
 import kotlin.math.sin
+
+@Composable
+fun LocalCoverArtwork(
+  coverUriString: String?,
+  contentDescription: String?,
+  modifier: Modifier = Modifier,
+) {
+  val context = LocalContext.current
+  val imageBitmap by produceState<ImageBitmap?>(initialValue = null, key1 = coverUriString) {
+    value = if (coverUriString.isNullOrBlank()) {
+      null
+    } else {
+      withContext(Dispatchers.IO) {
+        runCatching {
+          val uri = Uri.parse(coverUriString)
+          val bitmap = if (uri.scheme == "file") {
+            BitmapFactory.decodeFile(File(uri.path ?: "").absolutePath)
+          } else {
+            context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
+          }
+          bitmap?.asImageBitmap()
+        }.getOrNull()
+      }
+    }
+  }
+
+  val loadedBitmap = imageBitmap
+  if (loadedBitmap != null) {
+    Image(
+      bitmap = loadedBitmap,
+      contentDescription = contentDescription,
+      contentScale = ContentScale.Crop,
+      modifier = modifier
+    )
+  }
+}
 
 @Composable
 fun AuraAmbientBackdrop(
@@ -228,7 +271,6 @@ fun AuraFloatingFeatureGuideCard(
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(14.dp)
   ) {
-    // Left-aligned micro-icon in a tinted dawn-blue enclosure
     Box(
       modifier = Modifier
         .size(40.dp)
@@ -269,7 +311,6 @@ fun AuraFloatingFeatureGuideCard(
       )
     }
 
-    // Subtle pill-shaped dismiss trigger with 48dp accessible touch target
     Box(
       modifier = Modifier
         .minimumInteractiveComponentSize()
@@ -362,7 +403,6 @@ fun AuraHairlineScrubber(
         val topY = centerY - trackHeightPx / 2f
         val cornerRadius = CornerRadius(trackHeightPx / 2f, trackHeightPx / 2f)
 
-        // Base inactive hairline track: rgba(244, 245, 247, 0.12)
         drawRoundRect(
           color = AuraColors.SeekTrackInactive,
           topLeft = Offset(0f, topY),
@@ -370,7 +410,6 @@ fun AuraHairlineScrubber(
           cornerRadius = cornerRadius
         )
 
-        // Buffered segment: rgba(244, 245, 247, 0.25)
         val bufWidth = (size.width * bufferedFraction.coerceIn(0f, 1f))
         if (bufWidth > 0f) {
           drawRoundRect(
@@ -381,7 +420,6 @@ fun AuraHairlineScrubber(
           )
         }
 
-        // Active Dawn Azure progress: #4F75FF
         val activeWidth = (size.width * displayFraction.coerceIn(0f, 1f))
         if (activeWidth > 0f) {
           drawRoundRect(
@@ -392,7 +430,6 @@ fun AuraHairlineScrubber(
           )
         }
 
-        // Dawn Azure glow aura around playhead (0 0 16px rgba(79, 117, 255, 0.45))
         val thumbCenterX = activeWidth.coerceIn(0f, size.width)
         val glowRadiusPx = if (isDragging) 18.dp.toPx() else 12.dp.toPx()
         drawCircle(
@@ -405,7 +442,6 @@ fun AuraHairlineScrubber(
           center = Offset(thumbCenterX, centerY)
         )
 
-        // Polished white thumb (8dp resting -> 14dp on drag)
         val thumbRadiusPx = thumbDiameter.toPx() / 2f
         drawCircle(
           color = AuraColors.AuroraSilver,
@@ -459,7 +495,6 @@ fun AuraTransportControls(
     horizontalArrangement = Arrangement.SpaceEvenly,
     verticalAlignment = Alignment.CenterVertically
   ) {
-    // Shuffle
     SecondaryTransportButton(
       icon = Icons.Filled.Shuffle,
       contentDescription = stringResource(R.string.toggle_shuffle),
@@ -468,7 +503,6 @@ fun AuraTransportControls(
       testTag = "shuffle_button"
     )
 
-    // Skip Previous
     SecondaryTransportButton(
       icon = Icons.Filled.SkipPrevious,
       contentDescription = stringResource(R.string.skip_previous),
@@ -478,7 +512,6 @@ fun AuraTransportControls(
       testTag = "skip_previous_button"
     )
 
-    // Primary Playback Anchor (64x64dp circular button with #F4F5F7 background & internal micro-bevel)
     Box(
       modifier = Modifier
         .size(64.dp)
@@ -508,7 +541,6 @@ fun AuraTransportControls(
       )
     }
 
-    // Skip Next
     SecondaryTransportButton(
       icon = Icons.Filled.SkipNext,
       contentDescription = stringResource(R.string.skip_next),
@@ -518,7 +550,6 @@ fun AuraTransportControls(
       testTag = "skip_next_button"
     )
 
-    // Repeat
     SecondaryTransportButton(
       icon = if (repeatMode == RepeatMode.ONE) Icons.Filled.RepeatOne else Icons.Filled.Repeat,
       contentDescription = stringResource(R.string.toggle_repeat),
@@ -560,7 +591,6 @@ private fun SecondaryTransportButton(
         modifier = Modifier.size(iconSize)
       )
     }
-    // Dawn Azure glow indicator dot when active
     Box(
       modifier = Modifier
         .size(5.dp)
@@ -689,7 +719,6 @@ fun AuraTrackRowItem(
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(14.dp)
   ) {
-    // Leading 44x44dp rounded album cover or track index
     Box(
       modifier = Modifier
         .size(44.dp)
@@ -703,10 +732,9 @@ fun AuraTrackRowItem(
       contentAlignment = Alignment.Center
     ) {
       if (!track.coverUriString.isNullOrBlank()) {
-        AsyncImage(
-          model = track.coverUriString,
+        LocalCoverArtwork(
+          coverUriString = track.coverUriString,
           contentDescription = track.title,
-          contentScale = ContentScale.Crop,
           modifier = Modifier.fillMaxSize()
         )
       } else if (isCurrentTrack && isPlaying) {
@@ -762,7 +790,6 @@ fun AuraTrackRowItem(
       )
     }
 
-    // Contextual three-dot overflow button at 40% resting opacity
     IconButton(
       onClick = onOpenMenu,
       modifier = Modifier

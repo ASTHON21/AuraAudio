@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AudioFile
-import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -61,7 +59,6 @@ fun TrackIndexScreen(
   onSelectTrack: (AudioTrackEntity) -> Unit,
   onOpenTrackMenu: (AudioTrackEntity) -> Unit,
   onImportLocalAudio: () -> Unit,
-  onOpenStreamSheet: () -> Unit,
   onOpenSynthesizeSheet: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
@@ -80,7 +77,6 @@ fun TrackIndexScreen(
         .widthIn(max = 640.dp)
         .padding(horizontal = horizontalMargin, vertical = 12.dp)
     ) {
-      // Header & Source Import Pills
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -88,7 +84,7 @@ fun TrackIndexScreen(
       ) {
         Column {
           Text(
-            text = "ACOUSTIC ARCHIVE",
+            text = "OFFLINE ACOUSTIC ARCHIVE",
             style = AuraTypeTokens.LabelSm,
             color = AuraColors.WarmApricot
           )
@@ -105,19 +101,13 @@ fun TrackIndexScreen(
         ) {
           SmallActionChip(
             icon = Icons.Filled.Add,
-            label = "Local",
+            label = "Import Local",
             onClick = onImportLocalAudio,
             testTag = "index_import_local_button"
           )
           SmallActionChip(
-            icon = Icons.Filled.Radio,
-            label = "Stream",
-            onClick = onOpenStreamSheet,
-            testTag = "index_add_stream_button"
-          )
-          SmallActionChip(
             icon = Icons.Filled.Tune,
-            label = "WAV",
+            label = "Synthesize WAV",
             onClick = onOpenSynthesizeSheet,
             testTag = "index_synthesize_wav_button"
           )
@@ -126,7 +116,6 @@ fun TrackIndexScreen(
 
       Spacer(modifier = Modifier.height(16.dp))
 
-      // Recessed Pill Search Field
       AuraRecessedSearchField(
         query = uiState.searchQuery,
         onQueryChange = onSearchQueryChange
@@ -134,7 +123,6 @@ fun TrackIndexScreen(
 
       Spacer(modifier = Modifier.height(12.dp))
 
-      // Filter Chips Row
       Row(
         modifier = Modifier
           .fillMaxWidth()
@@ -170,12 +158,10 @@ fun TrackIndexScreen(
         EmptyArchiveCard(
           hasActiveSearchOrFilter = uiState.searchQuery.isNotEmpty() || uiState.activeFilter != TrackFilter.ALL,
           onImportLocalAudio = onImportLocalAudio,
-          onOpenStreamSheet = onOpenStreamSheet,
           onOpenSynthesizeSheet = onOpenSynthesizeSheet,
           modifier = Modifier.fillMaxWidth()
         )
       } else {
-        // Zero-divider track list separated purely by vertical rhythm
         LazyColumn(
           modifier = Modifier
             .fillMaxSize()
@@ -236,7 +222,6 @@ private fun SmallActionChip(
 private fun EmptyArchiveCard(
   hasActiveSearchOrFilter: Boolean,
   onImportLocalAudio: () -> Unit,
-  onOpenStreamSheet: () -> Unit,
   onOpenSynthesizeSheet: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
@@ -274,27 +259,14 @@ private fun EmptyArchiveCard(
 
     if (!hasActiveSearchOrFilter) {
       Spacer(modifier = Modifier.height(6.dp))
-      Row(
+      EmptyStateActionButton(
+        icon = Icons.Filled.AudioFile,
+        text = "Import Audio Files from Device",
+        tint = AuraColors.DawnAzure,
+        onClick = onImportLocalAudio,
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-      ) {
-        EmptyStateActionButton(
-          icon = Icons.Filled.AudioFile,
-          text = "Import Files",
-          tint = AuraColors.DawnAzure,
-          onClick = onImportLocalAudio,
-          modifier = Modifier.weight(1f),
-          testTag = "empty_import_files_button"
-        )
-        EmptyStateActionButton(
-          icon = Icons.Filled.Radio,
-          text = "Stream URL",
-          tint = AuraColors.AuroraSilver,
-          onClick = onOpenStreamSheet,
-          modifier = Modifier.weight(1f),
-          testTag = "empty_stream_url_button"
-        )
-      }
+        testTag = "empty_import_files_button"
+      )
       EmptyStateActionButton(
         icon = Icons.Filled.Tune,
         text = "Synthesize 16-Bit / 44.1kHz Reference WAV",

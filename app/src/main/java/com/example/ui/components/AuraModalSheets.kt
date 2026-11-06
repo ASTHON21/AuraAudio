@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SpeakerGroup
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,145 +51,6 @@ import com.example.ui.HardwareAudioTelemetry
 import com.example.ui.theme.AuraColors
 import com.example.ui.theme.AuraTypeTokens
 import java.util.Locale
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddStreamModalSheet(
-  onDismiss: () -> Unit,
-  onConnectStream: (url: String, title: String, artist: String, album: String, coverUrl: String?) -> Unit,
-) {
-  var streamUrl by remember { mutableStateOf("") }
-  var title by remember { mutableStateOf("") }
-  var artist by remember { mutableStateOf("") }
-  var album by remember { mutableStateOf("") }
-  var coverUrl by remember { mutableStateOf("") }
-  var errorText by remember { mutableStateOf<String?>(null) }
-
-  ModalBottomSheet(
-    onDismissRequest = onDismiss,
-    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    containerColor = AuraColors.ModalSheetSurface,
-    scrimColor = Color.Black.copy(alpha = 0.68f),
-    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-    dragHandle = { ModalSheetRimHandle() }
-  ) {
-    Column(
-      modifier = Modifier
-        .fillMaxWidth()
-        .navigationBarsPadding()
-        .padding(horizontal = 24.dp, vertical = 12.dp)
-        .testTag("add_stream_modal_sheet"),
-      verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Column {
-          Text(
-            text = "DIRECT NETWORK STREAM",
-            style = AuraTypeTokens.LabelSm,
-            color = AuraColors.DawnAzure
-          )
-          Text(
-            text = "Connect Audio Stream",
-            style = AuraTypeTokens.HeadlineLg,
-            color = AuraColors.AuroraSilver
-          )
-        }
-        IconButton(onClick = onDismiss, modifier = Modifier.size(48.dp)) {
-          Icon(
-            imageVector = Icons.Filled.Close,
-            contentDescription = "Close",
-            tint = AuraColors.OnSurfaceVariant
-          )
-        }
-      }
-
-      AuraSheetTextField(
-        value = streamUrl,
-        onValueChange = {
-          streamUrl = it
-          errorText = null
-        },
-        label = "Audio Stream URL (https://…)",
-        testTag = "stream_url_input"
-      )
-
-      AuraSheetTextField(
-        value = title,
-        onValueChange = {
-          title = it
-          errorText = null
-        },
-        label = "Track Title",
-        testTag = "stream_title_input"
-      )
-
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-      ) {
-        AuraSheetTextField(
-          value = artist,
-          onValueChange = { artist = it },
-          label = "Artist",
-          modifier = Modifier.weight(1f),
-          testTag = "stream_artist_input"
-        )
-        AuraSheetTextField(
-          value = album,
-          onValueChange = { album = it },
-          label = "Album / Source",
-          modifier = Modifier.weight(1f),
-          testTag = "stream_album_input"
-        )
-      }
-
-      AuraSheetTextField(
-        value = coverUrl,
-        onValueChange = { coverUrl = it },
-        label = "Artwork Image URL (Optional)",
-        testTag = "stream_cover_input"
-      )
-
-      if (errorText != null) {
-        Text(
-          text = errorText!!,
-          style = AuraTypeTokens.BodySm,
-          color = AuraColors.Error
-        )
-      }
-
-      Spacer(modifier = Modifier.height(4.dp))
-
-      AuraPrimaryPillButton(
-        text = "Engage Stream Signal",
-        onClick = {
-          val cleanUrl = streamUrl.trim()
-          val cleanTitle = title.trim()
-          if (cleanUrl.isEmpty() || (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://"))) {
-            errorText = "Please enter a valid http:// or https:// audio stream URL."
-          } else if (cleanTitle.isEmpty()) {
-            errorText = "Please enter a title for the audio stream."
-          } else {
-            onConnectStream(
-              cleanUrl,
-              cleanTitle,
-              artist.trim().ifEmpty { "Network Stream" },
-              album.trim().ifEmpty { "Direct Stream" },
-              coverUrl.trim().ifEmpty { null }
-            )
-          }
-        },
-        testTag = "submit_stream_button"
-      )
-
-      Spacer(modifier = Modifier.height(12.dp))
-    }
-  }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -247,7 +107,7 @@ fun SynthesizeReferenceToneModalSheet(
       }
 
       Text(
-        text = "Generate an uncompressed harmonic PCM WAV file directly onto local storage to calibrate and test the audio signal path.",
+        text = "Generate an uncompressed harmonic PCM WAV file directly onto local storage to calibrate and test the audio signal path offline.",
         style = AuraTypeTokens.BodySm,
         color = AuraColors.OnSurfaceVariant
       )
@@ -372,7 +232,7 @@ fun SignalTelemetryModalSheet(
       ) {
         Column {
           Text(
-            text = "ACOUSTIC ARCHITECTURE",
+            text = "OFFLINE ACOUSTIC ARCHITECTURE",
             style = AuraTypeTokens.LabelSm,
             color = AuraColors.WarmApricot
           )
@@ -392,12 +252,12 @@ fun SignalTelemetryModalSheet(
       }
 
       TelemetryNodeCard(
-        stageLabel = "STAGE 01 • SOURCE DECODER",
+        stageLabel = "STAGE 01 • LOCAL SOURCE DECODER",
         title = track?.title ?: "No Active Signal",
         subtitle = if (track != null) {
           "${track.mimeType.uppercase(Locale.ROOT)} • ${track.technicalSpecLabel}"
         } else {
-          "Awaiting local file or network stream input"
+          "Awaiting local audio file or synthesized WAV input"
         },
         badgeText = track?.qualityBadge ?: "STANDBY",
         isHighlight = track?.isLossless == true
@@ -568,7 +428,7 @@ fun TrackContextModalSheet(
 
       SheetActionRow(
         icon = Icons.Filled.Edit,
-        label = "Edit Track Metadata & Artwork",
+        label = "Edit Track Metadata",
         tint = AuraColors.AuroraSilver,
         onClick = onEditMetadata,
         testTag = "sheet_action_edit"
@@ -592,12 +452,11 @@ fun TrackContextModalSheet(
 fun EditMetadataModalSheet(
   track: AudioTrackEntity,
   onDismiss: () -> Unit,
-  onSave: (title: String, artist: String, album: String, coverUri: String?) -> Unit,
+  onSave: (title: String, artist: String, album: String) -> Unit,
 ) {
   var title by remember(track.id) { mutableStateOf(track.title) }
   var artist by remember(track.id) { mutableStateOf(track.artist) }
   var album by remember(track.id) { mutableStateOf(track.album) }
-  var coverUri by remember(track.id) { mutableStateOf(track.coverUriString ?: "") }
 
   ModalBottomSheet(
     onDismissRequest = onDismiss,
@@ -642,16 +501,9 @@ fun EditMetadataModalSheet(
         testTag = "edit_album_input"
       )
 
-      AuraSheetTextField(
-        value = coverUri,
-        onValueChange = { coverUri = it },
-        label = "Cover Artwork URL (Optional)",
-        testTag = "edit_cover_input"
-      )
-
       AuraPrimaryPillButton(
         text = "Save Metadata",
-        onClick = { onSave(title, artist, album, coverUri) },
+        onClick = { onSave(title, artist, album) },
         testTag = "save_metadata_button"
       )
 
@@ -701,7 +553,6 @@ private fun ModalSheetRimHandle() {
     modifier = Modifier.fillMaxWidth(),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    // Top rim light highlight: 1px solid rgba(244, 245, 247, 0.15)
     Box(
       modifier = Modifier
         .fillMaxWidth()

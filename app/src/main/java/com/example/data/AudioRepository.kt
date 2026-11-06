@@ -32,21 +32,18 @@ class AudioRepository(
     newTitle: String,
     newArtist: String,
     newAlbum: String,
-    newCoverUri: String?,
   ) {
     dao.updateTrack(
       track.copy(
         title = newTitle.trim().ifEmpty { track.title },
         artist = newArtist.trim().ifEmpty { track.artist },
         album = newAlbum.trim().ifEmpty { track.album },
-        coverUriString = newCoverUri?.trim()?.ifEmpty { null },
       )
     )
   }
 
   suspend fun deleteTrack(track: AudioTrackEntity) {
     withContext(Dispatchers.IO) {
-      // Clean up internal synthesized files or cached cover art if owned by app
       track.coverUriString?.let { coverPath ->
         if (coverPath.startsWith("file://")) {
           runCatching { File(Uri.parse(coverPath).path ?: "").delete() }
@@ -197,55 +194,15 @@ class AudioRepository(
         qualityBadge = qualityBadge,
         technicalSpecLabel = technicalSpecLabel,
         dominantColorHex = dominantColorHex,
-        isStream = false,
       )
       val id = dao.insertTrack(entity)
       entity.copy(id = id)
     }.getOrNull()
   }
 
-  suspend fun addStreamTrack(
-    streamUrl: String,
-    title: String,
-    artist: String,
-    album: String,
-    coverUrl: String?,
-  ): AudioTrackEntity = withContext(Dispatchers.IO) {
-    val cleanUrl = streamUrl.trim()
-    val lowerUrl = cleanUrl.lowercase()
-    val isLossless = lowerUrl.endsWith(".flac") || lowerUrl.endsWith(".wav")
-    val formatShort = when {
-      lowerUrl.endsWith(".flac") -> "FLAC"
-      lowerUrl.endsWith(".wav") -> "WAV"
-      lowerUrl.endsWith(".aac") || lowerUrl.endsWith(".m4a") -> "AAC"
-      lowerUrl.endsWith(".ogg") -> "OGG"
-      else -> "STREAM"
-    }
-    val entity = AudioTrackEntity(
-      title = title.trim(),
-      artist = artist.trim(),
-      album = album.trim().ifEmpty { "Direct Network Stream" },
-      uriString = cleanUrl,
-      coverUriString = coverUrl?.trim()?.takeIf { it.isNotEmpty() },
-      durationMs = 0L,
-      mimeType = if (isLossless) "audio/flac" else "audio/mpeg",
-      bitrateKbps = if (isLossless) 1411 else 320,
-      sampleRateHz = 48000,
-      bitDepth = if (isLossless) 24 else 16,
-      channels = 2,
-      isLossless = isLossless,
-      qualityBadge = if (isLossless) "LOSSLESS" else "DIRECT STREAM",
-      technicalSpecLabel = if (isLossless) "48KHZ / 24-BIT $formatShort" else "48KHZ / DIRECT $formatShort",
-      dominantColorHex = 0xFF4F75FFL,
-      isStream = true,
-    )
-    val id = dao.insertTrack(entity)
-    entity.copy(id = id)
-  }
-
   /**
    * Synthesizes a real uncompressed 16-bit 44.1kHz stereo PCM WAV audio file from user-entered
-   * acoustic parameters so users can test real hardware playback and scrubbing without external files.
+   * acoustic parameters so users can test real hardware playback and scrubbing locally.
    */
   suspend fun synthesizeCustomReferenceWav(
     title: String,
@@ -265,20 +222,17 @@ class AudioRepository(
 
     FileOutputStream(outFile).use { fos ->
       val header = ByteBuffer.allocate(44).order(ByteOrder.LITTLE_ENDIAN)
-      // RIFF chunk
       header.put("RIFF".toByteArray(Charsets.US_ASCII))
       header.putInt(36 + dataSize)
       header.put("WAVE".toByteArray(Charsets.US_ASCII))
-      // fmt sub-chunk
       header.put("fmt ".toByteArray(Charsets.US_ASCII))
-      header.putInt(16) // PCM chunk size
-      header.putShort(1) // AudioFormat = 1 (PCM)
+      header.putInt(16)
+      header.putShort(1)
       header.putShort(channels.toShort())
       header.putInt(sampleRate)
-      header.putInt(sampleRate * channels * (bitsPerSample / 8)) // ByteRate
-      header.putShort((channels * (bitsPerSample / 8)).toShort()) // BlockAlign
+      header.putInt(sampleRate * channels * (bitsPerSample / 8))
+      header.putShort((channels * (bitsPerSample / 8)).toShort())
       header.putShort(bitsPerSample.toShort())
-      // data sub-chunk
       header.put("data".toByteArray(Charsets.US_ASCII))
       header.putInt(dataSize)
       fos.write(header.array())
@@ -298,18 +252,17 @@ class AudioRepository(
             frame > totalFrames - fadeFrames -> (totalFrames - frame).toDouble() / fadeFrames
             else -> 1.0
           }
-          // Warm fundamental + subtle fifth and octave harmonic with slow binaural spatial modulation
           val lfo = 0.85 + 0.15 * sin(2.0 * PI * 0.25 * t)
           val fundamentalL = sin(2.0 * PI * baseFrequencyHz * t)
           val fundamentalR = sin(2.0 * PI * (baseFrequencyHz + 1.5) * t)
-          val harmonicfifth = 0.28 * sin(2.0 * PI * (baseFrequencyHz * 1.498) * t)
+          val harmonicFifth = 0.28 * sin(2.0 * PI * (baseFrequencyHz * 1.498) * t)
           val subHarmonic = 0.20 * sin(2.0 * PI * (baseFrequencyHz * 0.5) * t)
 
-          val sampleL = ((fundamentalL * 0.52 + harmonicfifth + subHarmonic) * env * lfo * 18000.0)
+          val sampleL = ((fundamentalL * 0.52 + harmonicFifth + subHarmonic) * env * lfo * 18000.0)
             .toInt()
             .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt())
             .toShort()
-          val sampleR = ((fundamentalR * 0.52 + harmonicfifth + subHarmonic) * env * lfo * 18000.0)
+          val sampleR = ((fundamentalR * 0.52 + harmonicFifth + subHarmonic) * env * lfo * 18000.0)
             .toInt()
             .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt())
             .toShort()
@@ -339,7 +292,6 @@ class AudioRepository(
       qualityBadge = "LOSSLESS",
       technicalSpecLabel = "44.1KHZ / 16-BIT WAV",
       dominantColorHex = if (baseFrequencyHz > 400.0) 0xFFFFA877L else 0xFF4F75FFL,
-      isStream = false,
     )
     val id = dao.insertTrack(entity)
     entity.copy(id = id)
